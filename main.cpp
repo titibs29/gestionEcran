@@ -1,25 +1,53 @@
-﻿#include <wiringPi.h>
+#include "screen.h"
+#include <iostream>
 #include <wiringSerial.h>
+//#include "nextion/NexText.h"
 
-// Broche LED - La broche WiringPi 0 est BCM_GPIO 17.
-// nous devons utiliser la numérotation BCM au moment de l'initialisation à l'aide de wiringPiSetupSys
-// si vous choisissez un autre numéro de broche, utilisez la numérotation BCM, et
-// mettez à jour la commande Pages de propriétés - Événements de build - Événement postbuild distant
-// qui utilise l'exportation gpio pour la configuration de wiringPiSetupSys
-#define	LED	17
 
-int main(void)
-{
-	wiringPiSetupSys();
+int main(void) {
 
-	pinMode(LED, OUTPUT);
+    //INIT
+    int hmi = 0;
+    const char *device = "/dev/ttyS0";
+    int baud = 9600;
+    hmi = serialOpen(device, baud);
 
-	while (true)
-	{
-		digitalWrite(LED, HIGH);  // Activé
-		delay(500); // ms
-		digitalWrite(LED, LOW);	  // Désactivé
-		delay(500);
-	}
+    bool ret1 = false;
+    bool ret2 = false;
+    serialPrintf(hmi, "");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+
+    serialPrintf(hmi, "bkcmd=1");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+
+    ret1 = serialGetchar(hmi);
+    serialPrintf(hmi, "page 0");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+
+    ret2 = serialGetchar(hmi);
+
+    std::cout << ret1 << " & " << ret2 << std::endl;
+	
+    //SET
+    serialPrintf(hmi, "temp.val=220");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+
+    //GET
+    while (1) {
+        while (serialDataAvail(hmi)) {
+            int data = serialGetchar(hmi);
+            std::cout << data << std::endl;
+        }
+    }
+
 	return 0;
+
 }
