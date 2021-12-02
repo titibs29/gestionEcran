@@ -1,6 +1,18 @@
+#include <wiringSerial.h>
+#include <iostream>
+
 #pragma once
 
-void init(const char *device = "/dev/ttyS0", int baud=9600);
+void sendCommand(int hmi, const char* cmd);
 
-void setTemp(int temp);
-int getTemp();
+int Init(int hmi);
+
+void setTemp(float input);
+
+void setPwr(int input);
+
+void setLatitude(int input);
+
+void setLongitude(int input);
+
+void setSignal(int input);
