@@ -3,16 +3,18 @@
 
 #pragma once
 
-void sendCommand(int hmi, const char* cmd);
+void sendCommand( const char* cmd);
 
-int Init(int hmi);
+void Init();
 
-void setTemp(float input);
+void setTemp(double input);
 
-void setPwr(int input);
+void setPwr(double pwr);
 
 void setLatitude(int input);
 
 void setLongitude(int input);
+
+void setPosition(double lat,double lon);
 
 void setSignal(int input);
