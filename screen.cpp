@@ -1,21 +1,26 @@
-#include <wiringSerial.h>
-#include <string.h>
-#include <iostream>
 #include "screen.h"
 
-void sendCommand(int hmi, const char* cmd)
+#define LENGTH 50
+
+int hmi = 0;
+
+void sendCommand(const char* cmd)
 {
+    std::cout << "sending : " << cmd << std::endl;
     while (serialDataAvail(hmi))
     {
         serialGetchar(hmi);
     }
 
-    bool ret1 = false;
-    bool ret2 = false;
-    serialPrintf(hmi, "");
-    serialPrintf(hmi, "0xFF");
-    serialPrintf(hmi, "0xFF");
-    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, cmd);
+    serialPutchar(hmi, 0xFF);
+    serialPutchar(hmi, 0xFF);
+    serialPutchar(hmi, 0xFF);
+
+    while (serialDataAvail(hmi))
+    {
+        serialGetchar(hmi);
+    }
 }
 
     void Init()
@@ -32,6 +37,9 @@ void sendCommand(int hmi, const char* cmd)
     while (serialDataAvail(hmi))
     {
         ret1 = serialGetchar(hmi);
+        serialGetchar(hmi);
+        serialGetchar(hmi);
+        serialGetchar(hmi);
     }
 
     sendCommand("page 0");
@@ -39,29 +47,43 @@ void sendCommand(int hmi, const char* cmd)
     {
         ret2 = serialGetchar(hmi);
     }
-    return ret1 & ret2;
+    std::cout << ret1 << " and " << ret2 << std::endl;
+    
 }
 
 void setTemp(double temp)
 {
     int temperature = int(temp*10);
-    sendCommand("temp_val.val=" + temperature);
+    char text[LENGTH*sizeof(char)];
+    std::sprintf(text, "temp_val.val=%d", temperature);
+    sendCommand(text);
+    int val = 0;
+    while (serialDataAvail(hmi)) {
+        val = serialGetchar(hmi);
+        std::cout << "temp: " << val << std::endl;
+    }
 }
 
 void setPwr(double pwr)
 {
     int power = int(pwr * 10);
-    sendCommand("pwr_val.val=" + power);
+    char text[LENGTH * sizeof(char)];
+    std::sprintf(text, "pow_val.val=%d", power);
+    sendCommand(text);
 }
 
 void setLatitude(int lat)
 {
-    sendCommand("lat_val.val=" + lat);
+    char text[LENGTH * sizeof(char)];
+    std::sprintf(text, "lat_val.val=%d", lat);
+    sendCommand(text);
 }
 
 void setLongitude(int lon)
 {
-    sendCommand("lon_val.val=" + lon);
+    char text[LENGTH * sizeof(char)];
+    std::sprintf(text, "lon_val.val=%d", lon);
+    sendCommand(text);
 }
 
 void setPosition(double lat,double lon)
@@ -75,17 +97,27 @@ void setPosition(double lat,double lon)
 
 void setSignal(int signal)
 {
-    sendCommand("sig_val.val=" + signal);
+    char text[LENGTH * sizeof(char)];
+    std::sprintf(text, "sig_val.val=%d", signal);
+    sendCommand(text);
+}
+
+int status()
+{
+    return hmi;
+}
+
+void close()
+{
+    serialClose(hmi);
 }
 
 int getTemp() {
-    ////GET
-    //while (1) {
-    //    while (serialDataAvail(hmi)) {
-    //        int data = serialGetchar(hmi);
-    //        std::cout << data << std::endl;
-    //    }
-    //}
+    //GET
+    while (serialDataAvail(hmi)) {
+        int data = serialGetchar(hmi);
+        std::cout << data << std::endl;
+    }
     return 0;
 }
 

@@ -1,6 +1,10 @@
+#include <wiringSerial.h>
+#include <string.h>
+#include <iostream>
+
 #pragma once
 
-void sendCommand(int hmi, const char* cmd);
+void sendCommand(const char* cmd);
 
 void Init();
 
@@ -15,3 +19,7 @@ void setLongitude(int input);
 void setPosition(double lat,double lon);
 
 void setSignal(int input);
+
+int status();
+
+void close();
