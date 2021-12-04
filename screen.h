@@ -1,6 +1,17 @@
 #pragma once
 
-void init(const char *device = "/dev/ttyS0", int baud=9600);
+void sendCommand(int hmi, const char* cmd);
 
-void setTemp(int temp);
-int getTemp();
+void Init();
+
+void setTemp(double input);
+
+void setPwr(double pwr);
+
+void setLatitude(int input);
+
+void setLongitude(int input);
+
+void setPosition(double lat,double lon);
+
+void setSignal(int input);
