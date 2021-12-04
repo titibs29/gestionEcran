@@ -1,42 +1,55 @@
+#include "screen.h"
 #include <iostream>
 #include <wiringSerial.h>
-#include "screen.h"
-
-
-
-
-
+//#include "nextion/NexText.h"
+#include "nextion/Nextion.h"
 
 
 int main(void) {
 
-    //INIT
-    Init();
-    std::cout << "connexion etablie" << std::endl;
+    int hmi = 0;
+    const char *device = "/dev/ttyS0";
+    int baud = 9600;
+    hmi = serialOpen(device, baud);
+    hmi = nexInit(hmi);
+    bool ret1 = false;
+    bool ret2 = false;
+    serialPrintf(hmi, "");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    //serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "bkcmd=1");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    //serialPrintf(hmi, "0xFF");
+    ret1 = serialGetchar(hmi);
+    serialPrintf(hmi, "page 0");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
 
-
-    // changement de température
-
-    double temp = 22.3;
-    setTemp(temp);
-    std::cout << "temperature changee" << std::endl;
-
-    //changement de puissance
-    double pwr = 3400.0;
-    setPwr(pwr);
-    std::cout << "puissance changee" << std::endl;
-
-
-    //changement de coordonées géographique
-    setPosition(50.411986, 4.442602);
-    std::cout << "position changee" << std::endl;
-
-
-    //changement de puissance du signal
-    int signal = 3;
-    setSignal(signal);
-    std::cout << "signal change" << std::endl;
-
+    ret2 = serialGetchar(hmi);
+    //serialPrintf(hmi, "0xFF");
+    std::cout << ret1 << " & " << ret2 << std::endl;
+	
+    //SET
+    serialPrintf(hmi, "temp.val=220");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    serialPrintf(hmi, "0xFF");
+    //serialPrintf(hmi, "0xFF");
+    //GET
+    while (1) {
+        while (serialDataAvail(hmi)) {
+            int data = serialGetchar(hmi);
+            std::cout << data << std::endl;
+        }
+    }
+    //        std::cout << data << std::endl;
+    //    }
+    //}
 
 	return 0;
 
