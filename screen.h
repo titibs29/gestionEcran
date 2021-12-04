@@ -8,17 +8,19 @@ void sendCommand(const char* cmd);
 
 void Init();
 
-void setTemp(double input);
+void setTemp(double temp);
+
+void setTemp(int temp);
 
 void setPwr(double pwr);
 
-void setLatitude(int input);
+void setLatitude(int lat);
 
-void setLongitude(int input);
+void setLongitude(int lon);
 
 void setPosition(double lat,double lon);
 
-void setSignal(int input);
+void setSignal(int sig);
 
 int status();
 

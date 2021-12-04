@@ -6,7 +6,6 @@ int hmi = 0;
 
 void sendCommand(const char* cmd)
 {
-    std::cout << "sending : " << cmd << std::endl;
     while (serialDataAvail(hmi))
     {
         serialGetchar(hmi);
@@ -16,17 +15,11 @@ void sendCommand(const char* cmd)
     serialPutchar(hmi, 0xFF);
     serialPutchar(hmi, 0xFF);
     serialPutchar(hmi, 0xFF);
-
-    while (serialDataAvail(hmi))
-    {
-        serialGetchar(hmi);
-    }
 }
 
     void Init()
 {
-    int ret1 = 0;
-    int ret2 = 0;
+
 
     const char* device = "/dev/ttyS0";  //dossier de serial0, vor 'ls /dev -l'
     int baud = 9600;
@@ -36,18 +29,14 @@ void sendCommand(const char* cmd)
     sendCommand("bkcmd=1");
     while (serialDataAvail(hmi))
     {
-        ret1 = serialGetchar(hmi);
-        serialGetchar(hmi);
-        serialGetchar(hmi);
         serialGetchar(hmi);
     }
 
     sendCommand("page 0");
     while (serialDataAvail(hmi))
     {
-        ret2 = serialGetchar(hmi);
+        serialGetchar(hmi);
     }
-    std::cout << ret1 << " and " << ret2 << std::endl;
     
 }
 
@@ -60,8 +49,17 @@ void setTemp(double temp)
     int val = 0;
     while (serialDataAvail(hmi)) {
         val = serialGetchar(hmi);
-        std::cout << "temp: " << val << std::endl;
     }
+}
+
+void setTemp(int temp)
+{
+    int temperature = temp * 10;
+    char text[LENGTH * sizeof(char)];
+    std::sprintf(text, "temp_val.val=%d", temperature);
+    sendCommand(text);
+    int val = 0;
+    
 }
 
 void setPwr(double pwr)
@@ -112,12 +110,4 @@ void close()
     serialClose(hmi);
 }
 
-int getTemp() {
-    //GET
-    while (serialDataAvail(hmi)) {
-        int data = serialGetchar(hmi);
-        std::cout << data << std::endl;
-    }
-    return 0;
-}
 
