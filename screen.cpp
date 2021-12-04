@@ -20,7 +20,7 @@ void Init()
     int ret1 = 0;
     int ret2 = 0;
 
-    const char* device = "/dev/ttyS0";  //dossier de serial0, vor 'ls /dev -l'
+    const char* device = "/dev/ttyS0";  //dossier de serial0, voir serial0 avec 'ls /dev -l'
     int baud = 9600;
     hmi = serialOpen(device, baud);
 
@@ -36,7 +36,8 @@ void Init()
     {
         ret2 = serialGetchar(hmi);
     }
-    return ret1 & ret2;
+    printf(ret1 + " " + ret2);
+    
 }
 
 void setTemp(double temp)
@@ -48,7 +49,7 @@ void setTemp(double temp)
 void setPwr(double pwr)
 {
     int power = int(pwr * 10);
-    sendCommand("pwr_val.val=" + power);
+    sendCommand("pow_val.val=" + power);
 }
 
 void setLatitude(int lat)
