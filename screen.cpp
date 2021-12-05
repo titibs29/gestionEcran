@@ -1,113 +1,176 @@
 #include "screen.h"
 
 #define LENGTH 50
+#define device "/dev/ttyS0"						// dossier de serial0, voir 'ls /dev -l'
+#define baudrate 9600
 
 int hmi = 0;
 
-void sendCommand(const char* cmd)
+void sendCommand(const char* command)
 {
-    while (serialDataAvail(hmi))
-    {
-        serialGetchar(hmi);
-    }
+	try {
 
-    serialPrintf(hmi, cmd);
-    serialPutchar(hmi, 0xFF);
-    serialPutchar(hmi, 0xFF);
-    serialPutchar(hmi, 0xFF);
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }	// vider le buffer
+
+		serialPrintf(hmi, command);				// envoi de la commande
+		serialPutchar(hmi, 0xFF);
+		serialPutchar(hmi, 0xFF);
+		serialPutchar(hmi, 0xFF);
+
+	}
+	catch (const char* msg) {
+		std::cout << "erreur  à l'envoi de la commande: " << command << std::endl;
+		std::cout << "erreur: " << msg << std::endl;
+	}
 }
 
-    void Init()
+void Init()
 {
+	try {
 
+		hmi = serialOpen(device, baudrate);
 
-    const char* device = "/dev/ttyS0";  //dossier de serial0, vor 'ls /dev -l'
-    int baud = 9600;
-    hmi = serialOpen(device, baud);
+		sendCommand("");
+		sendCommand("bkcmd=1");					// définit le type de retour de l'écran (0=pas de retour; 1=uniquement cmd réussie; 2=uniquement cmd échouée; 3=tout)
 
-    sendCommand("");
-    sendCommand("bkcmd=1");
-    while (serialDataAvail(hmi))
-    {
-        serialGetchar(hmi);
-    }
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
 
-    sendCommand("page 0");
-    while (serialDataAvail(hmi))
-    {
-        serialGetchar(hmi);
-    }
-    
+		sendCommand("page 0");					// retourne à la page 0 (reset également les valeurs)
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à l'initialisation de la connexion à l'écran: " << msg << std::endl;
+	}
 }
 
 void setTemp(double temp)
 {
-    int temperature = int(temp*10);
-    char text[LENGTH*sizeof(char)];
-    std::sprintf(text, "temp_val.val=%d", temperature);
-    sendCommand(text);
-    int val = 0;
-    while (serialDataAvail(hmi)) {
-        val = serialGetchar(hmi);
-    }
+	try {
+
+		int temperature = int(temp * 10);		// change la valeur en entier, puis l'intègre dans le texte
+		char text[LENGTH * sizeof(char)];
+		std::sprintf(text, "temp_val.val=%d", temperature);
+
+		sendCommand(text);
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à l'envoi de la température: " << msg << std::endl;
+	}
 }
 
 void setTemp(int temp)
 {
-    int temperature = temp * 10;
-    char text[LENGTH * sizeof(char)];
-    std::sprintf(text, "temp_val.val=%d", temperature);
-    sendCommand(text);
-    int val = 0;
-    
+	try {
+
+		int temperature = temp * 10;
+		char text[LENGTH * sizeof(char)];
+		std::sprintf(text, "temp_val.val=%d", temperature);
+
+		sendCommand(text);
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+	}
+	catch (const char* msg) {
+		std::cout << "error à l'envoi de la température: " << msg << std::endl;
+	}
 }
 
 void setPwr(double pwr)
 {
-    int power = int(pwr * 10);
-    char text[LENGTH * sizeof(char)];
-    std::sprintf(text, "pow_val.val=%d", power);
-    sendCommand(text);
+	try {
+
+		int power = int(pwr * 10);
+		char text[LENGTH * sizeof(char)];
+		std::sprintf(text, "pow_val.val=%d", power);
+
+		sendCommand(text);
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à l'envoi de la puissance: " << msg << std::endl;
+	}
 }
 
 void setLatitude(int lat)
 {
-    char text[LENGTH * sizeof(char)];
-    std::sprintf(text, "lat_val.val=%d", lat);
-    sendCommand(text);
+	try {
+
+		char text[LENGTH * sizeof(char)];		// intègre la valeur dans le texte
+		std::sprintf(text, "lat_val.val=%d", lat);
+
+		sendCommand(text);
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à l'envoi de la latitude: " << msg << std::endl;
+	}
 }
 
 void setLongitude(int lon)
 {
-    char text[LENGTH * sizeof(char)];
-    std::sprintf(text, "lon_val.val=%d", lon);
-    sendCommand(text);
+	try {
+
+		char text[LENGTH * sizeof(char)];
+		std::sprintf(text, "lon_val.val=%d", lon);
+
+		sendCommand(text);
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à l'envoi de la longitude: " << msg << std::endl;
+	}
 }
 
-void setPosition(double lat,double lon)
+void setPosition(double lat, double lon)
 {
-    int latitude = int(lat * 1000000);
-    int longitude = int(lon * 1000000);
+	try {
+		int latitude = int(lat * 1000000);
+		int longitude = int(lon * 1000000);
 
-    setLatitude(latitude);
-    setLongitude(longitude);
+		setLatitude(latitude);
+		setLongitude(longitude);
+
+	}
+	catch (const char* msg) {
+		std::cout << "erreur dans le formatage de la position GPS: " << msg << std::endl;
+	}
 }
 
 void setSignal(int signal)
 {
-    char text[LENGTH * sizeof(char)];
-    std::sprintf(text, "sig_val.val=%d", signal);
-    sendCommand(text);
+	try {
+
+		char text[LENGTH * sizeof(char)];
+		std::sprintf(text, "sig_val.val=%d", signal);
+
+		sendCommand(text);
+
+		while (serialDataAvail(hmi)) { serialGetchar(hmi); }
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à l'envoi du signal: " << msg << std::endl;
+	}
 }
 
 int status()
 {
-    return hmi;
+	return hmi;
 }
 
 void close()
 {
-    serialClose(hmi);
+	try {
+		serialClose(hmi);
+	}
+	catch (const char* msg) {
+		std::cout << "erreur à la fermeture: " << msg << std::endl;
+	}
 }
-
-

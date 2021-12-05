@@ -1,6 +1,7 @@
-#include "screen.h"
 #include <iostream>
+#include <wiringPi.h>
 #include <wiringSerial.h>
+#include "screen.h"
 
 
 
@@ -15,11 +16,11 @@ int main(void) {
     Init();
 
     // changement de température
-    double temp = 22.5;
+    double temp = 16.0;
     setTemp(temp);
 
     //changement de puissance
-    double pwr = 3400.2;
+    double pwr = 3650.0;
     setPwr(pwr);
 
     //changement de coordonées géographique
@@ -27,11 +28,12 @@ int main(void) {
     
 
     //changement de puissance du signal
-    int signal = 3;
+    int signal = 2;
     setSignal(signal);
 
 
     int hmi = status();
+    std::cout << "status: " << hmi << std::endl;
     close();
     while(1){}
 	return 0;
